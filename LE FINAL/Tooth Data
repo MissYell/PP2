@@ -1,0 +1,7 @@
+import java.util.HashMap;
+import java.util.Map;
+
+public class ToothData {
+    public static Map<Integer, Tooth> teethMap = new HashMap<>();
+}
+//this clas is for the TreatmentInfo details so that the detais will saved accordingly in the TOOTHINFO Class
