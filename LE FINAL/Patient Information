@@ -1,0 +1,85 @@
+import javafx.application.Application;
+import javafx.geometry.*;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
+
+public class PatientInformation extends Application {
+
+    private TextField dateField;
+    private TextField ageField;
+    private TextField dobField;
+    private TextField genderField;
+
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("Patient Information");
+        primaryStage.setScene(createPatientInfoScene(primaryStage));
+        primaryStage.show();
+    }
+
+    private Scene createPatientInfoScene(Stage primaryStage) {
+        // Patient Information
+        Label titleLabel = new Label("Patient Information");
+        titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: black;");
+
+        Label dateLabel = new Label("Date:");
+        dateField = new TextField();
+        dateField.setPrefWidth(300);
+
+        Label ageLabel = new Label("Age:");
+        ageField = new TextField();
+
+        Label dobLabel = new Label("Date of Birth:");
+        dobField = new TextField();
+
+        Label genderLabel = new Label("Gender:");
+        genderField = new TextField();
+
+        // Layout for Patient Information
+        GridPane patientInfoLayout = new GridPane();
+        patientInfoLayout.setAlignment(Pos.CENTER);
+        patientInfoLayout.setPadding(new Insets(50));
+        patientInfoLayout.setHgap(30);
+        patientInfoLayout.setVgap(30);
+        patientInfoLayout.addRow(0, dateLabel, dateField);
+        patientInfoLayout.addRow(1, ageLabel, ageField);
+        patientInfoLayout.addRow(2, dobLabel, dobField);
+        patientInfoLayout.addRow(3, genderLabel, genderField);
+
+        // Buttons
+        Button nextButton = new Button("Next");
+        Button clearButton = new Button("Clear");
+
+        // Layout for buttons
+        HBox buttonBox = new HBox(10, clearButton, nextButton);
+        buttonBox.setAlignment(Pos.CENTER);
+
+        // Layout for the whole scene
+        VBox root = new VBox(20);
+        root.setAlignment(Pos.CENTER);
+        root.setStyle("-fx-background-color: #FDF6FE;"); 
+        root.getChildren().addAll(titleLabel, patientInfoLayout, buttonBox);
+
+        
+        clearButton.setOnAction(event -> clearPatientInfoFields());
+        nextButton.setOnAction(event -> {
+            TreatmentInfo treatmentInfo = new TreatmentInfo();
+            treatmentInfo.start(primaryStage); 
+        });
+
+        return new Scene(root, 1300, 700);
+    }
+
+    private void clearPatientInfoFields() {
+        dateField.clear();
+        ageField.clear();
+        dobField.clear();
+        genderField.clear();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
