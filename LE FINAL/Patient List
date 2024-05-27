@@ -1,0 +1,176 @@
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+
+public class PatientReport extends Application {
+
+    private static ObservableList<Patient> patients = FXCollections.observableArrayList();
+
+    public static void addPatient(Patient patient) {
+        patients.add(patient);
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        TableView<Patient> tableView = new TableView<>();
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        TextField searchField = new TextField();
+        Label searchLabel = new Label("Search");
+        HBox searchBox = new HBox(searchLabel, searchField);
+        searchBox.setSpacing(10);
+        searchBox.setAlignment(Pos.CENTER_LEFT);
+
+        // ID column
+        TableColumn<Patient, String> idCol = new TableColumn<>("ID");
+        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idCol.setMinWidth(150);
+
+        // Name column
+        TableColumn<Patient, String> nameCol = new TableColumn<>("Name");
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+        nameCol.setMinWidth(200);
+
+        // Contact Number column
+        TableColumn<Patient, String> contactNumberCol = new TableColumn<>("Contact Number");
+        contactNumberCol.setCellValueFactory(new PropertyValueFactory<>("contactNumber"));
+        contactNumberCol.setMinWidth(200);
+
+        // Edit column buttons
+        TableColumn<Patient, Void> editCol = new TableColumn<>("Edit");
+        editCol.setCellFactory(param -> new TableCell<Patient, Void>() {
+            private final Button editButton = new Button("Edit");
+
+            {
+                editButton.setOnAction(event -> {
+                    Patient patient = getTableView().getItems().get(getIndex());
+                   TreatmentInfo treatmentInfo = new TreatmentInfo();
+                   treatmentInfo.start(primaryStage);
+                    System.out.println("Edit clicked for: " + patient.getName());
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(editButton);
+                }
+            }
+        });
+        editCol.setMinWidth(100);
+
+        // Details column buttons
+        TableColumn<Patient, Void> detailsCol = new TableColumn<>("Details");
+        detailsCol.setCellFactory(param -> new TableCell<Patient, Void>() {
+            private final Button viewButton = new Button("View");
+
+            {
+                viewButton.setOnAction(event -> {
+                    ToothInfo toothInfo = new ToothInfo();
+                    toothInfo.start(primaryStage);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(viewButton);
+                }
+            }
+        });
+        detailsCol.setMinWidth(100);
+
+        tableView.getColumns().addAll(idCol, nameCol, contactNumberCol, editCol, detailsCol);
+
+        FilteredList<Patient> filteredData = new FilteredList<>(patients, p -> true);
+
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(patient -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                String lowerCaseFilter = newValue.toLowerCase();
+
+                if (patient.getName().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                } else if (patient.getId().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                } else if (patient.getContactNumber().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                }
+                return false;
+            });
+        });
+
+        SortedList<Patient> sortedData = new SortedList<>(filteredData);
+        sortedData.comparatorProperty().bind(tableView.comparatorProperty());
+
+        tableView.setItems(sortedData);
+
+        VBox vbox = new VBox(10, searchBox, tableView);
+        vbox.setPadding(new Insets(20));
+
+        BorderPane root = new BorderPane();
+        root.setCenter(vbox);
+
+        Button backButton = new Button("Back");
+        backButton.setOnAction(event -> {
+            ClinicMain clinicMain = new ClinicMain();
+            clinicMain.start(primaryStage);
+        });
+
+        HBox hBox = new HBox(backButton);
+        hBox.setAlignment(Pos.CENTER);
+        hBox.setPadding(new Insets(10));
+        root.setBottom(hBox);
+
+        Scene scene = new Scene(root, 1300, 700, Color.SKYBLUE);
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Patient List Report");
+        primaryStage.show();
+    }
+
+    public static class Patient {
+        private String name;
+        private String id;
+        private String contactNumber;
+
+        public Patient(String name, String id, String contactNumber) {
+            this.name = name;
+            this.id = id;
+            this.contactNumber = contactNumber;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getContactNumber() {
+            return contactNumber;
+        }
+    }
+}
