@@ -1,0 +1,168 @@
+import javafx.application.Application;
+import javafx.geometry.*;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
+import java.util.HashMap;
+import java.util.Map;
+
+public class TreatmentInfo extends Application {
+
+    private VBox treatmentFormsContainer;
+    private int formCounter = 0;
+
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("Treatment Information");
+        primaryStage.setScene(createTreatmentInfoScene(primaryStage));
+        primaryStage.show();
+    }
+
+    private Scene createTreatmentInfoScene(Stage primaryStage) {
+        // Title label
+        Label titleLabel = new Label("Treatment Information");
+        titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: black;");
+
+        // Container for dynamically added treatment forms
+        treatmentFormsContainer = new VBox(20);
+        treatmentFormsContainer.setAlignment(Pos.CENTER);
+        treatmentFormsContainer.setPadding(new Insets(20));
+
+        // Add initial treatment form
+        addTreatmentForm();
+
+        // Buttons
+        Button addButton = new Button("Add Another Treatment");
+        Button submitButton = new Button("Submit");
+        Button backButton = new Button("Back");
+
+        addButton.setOnAction(event -> addTreatmentForm());
+        submitButton.setOnAction(event -> submitTreatmentInfo(primaryStage));
+        backButton.setOnAction(event -> {
+            PatientInformation patientInformation = new PatientInformation();
+            patientInformation.start(primaryStage);
+        });
+
+        // Layout for buttons
+        HBox buttonBox = new HBox(10, backButton, addButton, submitButton);
+        buttonBox.setAlignment(Pos.CENTER);
+
+        // Layout for the whole scene
+        VBox root = new VBox(20);
+        root.setAlignment(Pos.CENTER);
+        root.setStyle("-fx-background-color: #FDF6FE;"); // Set background color here
+        root.getChildren().addAll(titleLabel, treatmentFormsContainer, buttonBox);
+
+        return new Scene(root, 1300, 700);
+    }
+
+    private void addTreatmentForm() {
+        formCounter++;
+        Label formLabel = new Label("Treatment " + formCounter);
+
+        Label treatmentTypeLabel = new Label("Type of Treatment:");
+        ComboBox<String> treatmentTypeComboBox = new ComboBox<>();
+        treatmentTypeComboBox.getItems().addAll("Filling", "Extraction", "Root Canal", "Cleaning", "Crown", "Veneers", "Braces");
+
+        Label toothNumberLabel = new Label("Tooth Number:");
+        TextField toothNumberField = new TextField();
+
+        Label teethTypeLabel = new Label("Type of Teeth:");
+        ComboBox<String> teethTypeComboBox = new ComboBox<>();
+        teethTypeComboBox.getItems().addAll("Incisor", "Canine", "Premolar", "Molar");
+
+        GridPane treatmentForm = new GridPane();
+        treatmentForm.setHgap(10);
+        treatmentForm.setVgap(10);
+        treatmentForm.addRow(0, treatmentTypeLabel, treatmentTypeComboBox);
+        treatmentForm.addRow(1, toothNumberLabel, toothNumberField);
+        treatmentForm.addRow(2, teethTypeLabel, teethTypeComboBox);
+
+        VBox formContainer = new VBox(10, formLabel, treatmentForm);
+        formContainer.setPadding(new Insets(10));
+        formContainer.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-border-radius: 5;");
+
+        treatmentFormsContainer.getChildren().add(formContainer);
+    }
+
+    private void submitTreatmentInfo(Stage primaryStage) {
+        for (Node node : treatmentFormsContainer.getChildren()) {
+            if (node instanceof VBox) {
+                VBox formContainer = (VBox) node;
+                GridPane treatmentForm = (GridPane) formContainer.getChildren().get(1);
+
+                ComboBox<String> treatmentTypeComboBox = (ComboBox<String>) treatmentForm.getChildren().get(1);
+                TextField toothNumberField = (TextField) treatmentForm.getChildren().get(3);
+                ComboBox<String> teethTypeComboBox = (ComboBox<String>) treatmentForm.getChildren().get(5);
+
+                String treatmentType = treatmentTypeComboBox.getValue();
+                String toothNumber = toothNumberField.getText();
+                String teethType = teethTypeComboBox.getValue();
+
+                if (treatmentType != null && !toothNumber.isEmpty() && teethType != null) {
+                    int toothNum = Integer.parseInt(toothNumber);
+                    Tooth tooth = new Tooth(treatmentType, toothNumber, teethType);
+                    ToothData.teethMap.put(toothNum, tooth);
+                } else {
+                    // Show error message if any field is missing
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Please fill in all fields.");
+                    alert.showAndWait();
+                    return; // Stop processing further if there is an error
+                }
+            }
+        }
+
+        ToothInfo toothInfo = new ToothInfo();
+        toothInfo.start(primaryStage);
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    public static class Tooth {
+        private String treatmentType;
+        private String toothNumber;
+        private String teethType;
+
+        public Tooth(String treatmentType, String toothNumber, String teethType) {
+            this.treatmentType = treatmentType;
+            this.toothNumber = toothNumber;
+            this.teethType = teethType;
+        }
+
+        public String getTreatmentType() {
+            return treatmentType;
+        }
+
+        public void setTreatmentType(String treatmentType) {
+            this.treatmentType = treatmentType;
+        }
+
+        public String getToothNumber() {
+            return toothNumber;
+        }
+
+        public void setToothNumber(String toothNumber) {
+            this.toothNumber = toothNumber;
+        }
+
+        public String getTeethType() {
+            return teethType;
+        }
+
+        public void setTeethType(String teethType) {
+            this.teethType = teethType;
+        }
+    }
+
+    public static class ToothData {
+        public static Map<Integer, Tooth> teethMap = new HashMap<>();
+    }
+}
+ 
