@@ -1,0 +1,128 @@
+import javafx.application.Application;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.*;
+import javafx.stage.Stage;
+import javafx.scene.paint.Color;
+
+public class ToothInfo extends Application {
+
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setScene(createMainScene(primaryStage));
+        primaryStage.setTitle("Teeth Diagram");
+        primaryStage.show();
+    }
+
+    private Scene createMainScene(Stage primaryStage) {
+        
+        ImageView[] firstRowImageViews = new ImageView[16];
+        for (int i = 1; i <= 16; i++) {
+            Image image = new Image("file:/C:/Users/Admin/Pictures/image/" + i + ".png"); 
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(50);
+            imageView.setFitHeight(50);
+            imageView.setPreserveRatio(true);
+            firstRowImageViews[i - 1] = imageView;
+        }
+
+        
+        Button[] firstRowButtons = new Button[16];
+        for (int i = 0; i < 16; i++) {
+            Button button = new Button();
+            button.setGraphic(firstRowImageViews[i]);
+            int toothNumber = i + 1;
+            button.setOnAction(e -> primaryStage.setScene(createToothDetailScene(primaryStage, toothNumber)));
+            firstRowButtons[i] = button;
+        }
+
+        // Create image views with different images for the second row
+        ImageView[] secondRowImageViews = new ImageView[16];
+        for (int i = 17; i <= 32; i++) {
+            Image image = new Image("file:/C:/Users/Admin/Pictures/image/" + i + ".png");
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(50);
+            imageView.setFitHeight(50);
+            imageView.setPreserveRatio(true);
+            secondRowImageViews[i - 17] = imageView;
+        }
+
+        // Create buttons for the second row
+        Button[] secondRowButtons = new Button[16];
+        for (int i = 0; i < 16; i++) {
+            Button button = new Button();
+            button.setGraphic(secondRowImageViews[i]);
+            int toothNumber = i + 17;
+            button.setOnAction(e -> primaryStage.setScene(createToothDetailScene(primaryStage, toothNumber)));
+            secondRowButtons[i] = button;
+        }
+
+        // Create HBoxes for each row
+        HBox firstRow = new HBox(10); 
+        firstRow.getChildren().addAll(firstRowButtons);
+        firstRow.setAlignment(Pos.CENTER);
+
+        HBox secondRow = new HBox(10); 
+        secondRow.getChildren().addAll(secondRowButtons);
+        secondRow.setAlignment(Pos.CENTER);
+
+        
+        Label upperLabel = new Label("Upper Teeth");
+        upperLabel.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        upperLabel.setTextFill(Color.BLACK);
+
+        Label lowerLabel = new Label("Lower Teeth");
+        lowerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        lowerLabel.setTextFill(Color.BLACK);
+
+      
+        VBox vbox = new VBox(10);
+        vbox.getChildren().addAll(upperLabel, firstRow, lowerLabel, secondRow); 
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setStyle("-fx-background-color: #1CC9D5;");
+
+        // back to PatientReport
+        Button backButton = new Button("Back");
+        backButton.setOnAction(e -> {
+            PatientReport patientReport = new PatientReport();
+            patientReport.start(primaryStage);
+        }); 
+        // Add the back button to the VBox
+        vbox.getChildren().add(backButton);
+
+        return new Scene(vbox, 1300, 700, Color.SKYBLUE);
+    }
+
+    // Method to create a scene with the tooth details
+    private Scene createToothDetailScene(Stage primaryStage, int toothNumber) {
+        Label toothDetailLabel = new Label("Details");
+        toothDetailLabel.setFont(new Font("Arial", 24));
+
+        // Get the tooth details from ToothData
+        TreatmentInfo.Tooth tooth = TreatmentInfo.ToothData.teethMap.get(toothNumber);
+        Label details;
+        if (tooth != null) {
+            details = new Label("Treatment Type: " + tooth.getTreatmentType() + "\nTooth Number: " + tooth.getToothNumber() + "\nTeeth Type: " + tooth.getTeethType());
+        } else {
+            details = new Label("No details available for this tooth.");
+        }
+
+        Button backButton = new Button("Back");
+        backButton.setOnAction(e -> primaryStage.setScene(createMainScene(primaryStage))); // Navigate back to main scene
+
+        VBox vbox = new VBox(20, toothDetailLabel, details, backButton);
+        vbox.setAlignment(Pos.CENTER);
+
+        return new Scene(vbox, 1300, 700);
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
