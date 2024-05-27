@@ -1,0 +1,37 @@
+public class Tooth {
+    private String treatmentType;
+    private String toothNumber;
+    private String teethType;
+
+    // Constructor
+    public Tooth(String treatmentType, String toothNumber, String teethType) {
+        this.treatmentType = treatmentType;
+        this.toothNumber = toothNumber;
+        this.teethType = teethType;
+    }
+
+    // Getters and Setters
+    public String getTreatmentType() {
+        return treatmentType;
+    }
+
+    public void setTreatmentType(String treatmentType) {
+        this.treatmentType = treatmentType;
+    }
+
+    public String getToothNumber() {
+        return toothNumber;
+    }
+
+    public void setToothNumber(String toothNumber) {
+        this.toothNumber = toothNumber;
+    }
+
+    public String getTeethType() {
+        return teethType;
+    }
+
+    public void setTeethType(String teethType) {
+        this.teethType = teethType;
+    }
+}
